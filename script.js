@@ -7,7 +7,7 @@ let world = [];
 let currentMaterial = "sand";
 let elements = [];
 
-// Load elements.json
+// Load elements
 fetch("elements.json")
   .then(res => res.json())
   .then(data => {
@@ -17,7 +17,7 @@ fetch("elements.json")
       loop();
   });
 
-// Build bottom toolbar
+// Build toolbar
 function buildToolbar() {
     const toolbar = document.getElementById("toolbar");
     toolbar.innerHTML = "";
@@ -48,13 +48,13 @@ function resize() {
 }
 window.addEventListener("resize", resize);
 
-// Particle placement (throttle for performance)
+// Particle placement
 let isDrawing = false;
 let lastSpawn = 0;
 
 function spawnParticle(x, y) {
     const now = Date.now();
-    if (now - lastSpawn < 10) return; // 10ms throttle
+    if (now - lastSpawn < 10) return;
     lastSpawn = now;
 
     const rect = canvas.getBoundingClientRect();
@@ -84,115 +84,106 @@ canvas.addEventListener("touchmove", e => {
 // =======================
 // PHYSICS
 // =======================
+function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+}
 
-// Main update
 function update() {
-    // Bottom-to-top traversal
     for (let r = rows - 1; r >= 0; r--) {
         for (let c = 0; c < cols; c++) {
             const p = world[r][c];
             if (!p) continue;
 
-            // Fire behavior
             if (p.type === "fire") {
                 p.lifetime--;
                 if (p.lifetime <= 0) { world[r][c] = null; continue; }
                 spreadFire(r, c);
-                continue;
             }
 
-            // Explosives
             if (p.explosive) {
                 p.countdown--;
                 if (p.countdown <= 0) { explode(r, c); world[r][c] = null; continue; }
             }
 
-            // Solids & liquids
-            if (p.type === "solid" || p.liquid) {
-                applyGravitySafe(r, c);
-            }
-
-            // Gases
-            if (p.gas) {
-                moveUpSafe(r, c);
-            }
+            if (p.type === "solid" || p.liquid) applyGravitySafe(r, c);
+            if (p.gas) moveUpSafe(r, c);
         }
     }
 }
 
-// Fire spreads to flammable neighbors
 function spreadFire(r, c) {
     const dirs = [[0,1],[0,-1],[1,0],[-1,0]];
     dirs.forEach(([dx, dy]) => {
         const nr = r + dy, nc = c + dx;
-        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
+        if(nr>=0 && nr<rows && nc>=0 && nc<cols){
             const n = world[nr][nc];
-            if (n && n.flammable) {
-                world[nr][nc] = { ...elements.find(e => e.name === "fire"), lifetime: 50 };
-            }
+            if(n && n.flammable) world[nr][nc] = {...elements.find(e=>e.name==="fire"), lifetime:50};
         }
     });
 }
 
-// Gas rises
-function moveUpSafe(r, c) {
+function moveUpSafe(r, c){
     const p = world[r][c];
-    if (r <= 0) return;
-    if (!world[r - 1][c]) { world[r - 1][c] = p; world[r][c] = null; }
+    if(r<=0) return;
+    if(!world[r-1][c]) { world[r-1][c] = p; world[r][c] = null; }
 }
 
-// Solids & liquids gravity + interactions
-function applyGravitySafe(r, c) {
+function applyGravitySafe(r, c){
     const p = world[r][c];
-    if (!p || r >= rows - 1) return; // bottom row, do nothing
+    if(!p || r>=rows-1) return;
 
-    const below = world[r + 1][c];
+    const below = world[r+1][c];
+    if(!below){ world[r+1][c]=p; world[r][c]=null; return; }
 
-    // Move down if empty
-    if (!below) { world[r + 1][c] = p; world[r][c] = null; return; }
+    // Handle reactions
+    handleReactions(p, below, r, c, r+1, c);
 
-    // Sand sinking in liquids
-    if (p.sinks && below && below.liquid) { world[r + 1][c] = p; world[r][c] = below; return; }
+    if(p.sinks && below && below.liquid){
+        world[r+1][c] = p;
+        world[r][c] = below;
+        return;
+    }
 
-    // Liquids flow sideways if blocked
     const dirs = [-1, 1];
-    for (let d of dirs) {
-        const nc = c + d;
-        if (nc >= 0 && nc < cols && !world[r][nc]) {
+    for(let d of dirs){
+        const nc = c+d;
+        if(nc>=0 && nc<cols && !world[r][nc]){
             world[r][nc] = p;
             world[r][c] = null;
             return;
         }
     }
-
-    // Element interactions
-    if (p.type === "solid" && below && below.hot && p.name === "sand") world[r + 1][c] = { ...elements.find(e => e.name === "glass") };
-    if (p.name === "water" && below && below.hot) world[r + 1][c] = { ...elements.find(e => e.name === "stone") };
-    if (p.liquid && below && below.corrosive) world[r + 1][c] = null; // acid dissolves solids
 }
 
-// Explosion
-function explode(r, c) {
-    for (let y = -3; y <= 3; y++) for (let x = -3; x <= 3; x++) {
-        const nr = r + y, nc = c + x;
-        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) world[nr][nc] = null;
-    }
-}
-
-// Draw world
-function draw() {
-    ctx.clearRect(0, 0, width, height);
-    for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-            const p = world[r][c];
-            if (p) ctx.fillStyle = p.color, ctx.fillRect(c * particleSize, r * particleSize, particleSize, particleSize);
+function handleReactions(p1, p2, r1, c1, r2, c2){
+    if(!p1.reactions) return;
+    for(let rxn of p1.reactions){
+        if(p2.name === rxn.with){
+            if(rxn.result === null) return;
+            const resultEl = elements.find(e=>e.name===rxn.result);
+            if(resultEl){
+                world[r1][c1] = {...resultEl};
+                world[r2][c2] = {...resultEl};
+            }
         }
     }
 }
 
-// Main loop
-function loop() {
-    update();
-    draw();
-    requestAnimationFrame(loop);
+function explode(r, c){
+    for(let y=-3;y<=3;y++) for(let x=-3;x<=3;x++){
+        const nr=r+y, nc=c+x;
+        if(nr>=0 && nr<rows && nc>=0 && nc<cols) world[nr][nc]=null;
+    }
+}
+
+function draw(){
+    ctx.clearRect(0,0,width,height);
+    for(let r=0;r<rows;r++){
+        for(let c=0;c<cols;c++){
+            const p = world[r][c];
+            if(p) ctx.fillStyle=p.color, ctx.fillRect(c*particleSize, r*particleSize, particleSize, particleSize);
+        }
+    }
 }
