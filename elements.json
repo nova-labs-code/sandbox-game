@@ -3,22 +3,46 @@
   {"name":"stone","category":"Solids","color":"gray","type":"solid","liquid":false},
   {"name":"glass","category":"Solids","color":"lightblue","type":"solid","liquid":false},
   {"name":"wood","category":"Solids","color":"saddlebrown","type":"solid","flammable":true},
+  {"name":"coal","category":"Solids","color":"black","type":"solid","flammable":true},
+  {"name":"brick","category":"Solids","color":"brown","type":"solid"},
+  {"name":"ash","category":"Solids","color":"lightgray","type":"solid"},
+  {"name":"snow","category":"Solids","color":"white","type":"solid","sinks":false},
   {"name":"bomb","category":"Solids","color":"black","type":"explosive","countdown":50},
+  
   {"name":"water","category":"Liquids","color":"blue","type":"liquid","liquid":true},
   {"name":"lava","category":"Liquids","color":"orangered","type":"liquid","liquid":true,"hot":true},
   {"name":"oil","category":"Liquids","color":"darkgoldenrod","type":"liquid","liquid":true,"flammable":true},
   {"name":"acid","category":"Liquids","color":"green","type":"liquid","liquid":true,"corrosive":true},
   {"name":"honey","category":"Liquids","color":"orange","type":"liquid","liquid":true},
+  {"name":"milk","category":"Liquids","color":"ivory","type":"liquid","liquid":true},
+  {"name":"paint","category":"Liquids","color":"purple","type":"liquid","liquid":true},
+  {"name":"poison","category":"Liquids","color":"darkgreen","type":"liquid","liquid":true},
+  {"name":"soda","category":"Liquids","color":"cyan","type":"liquid","liquid":true},
+
   {"name":"fire","category":"Fire/Heat","color":"red","type":"fire","lifetime":50,"flammable":true},
+  {"name":"torch","category":"Fire/Heat","color":"orange","type":"fire","lifetime":100,"flammable":true},
+  {"name":"plasma","category":"Fire/Heat","color":"magenta","type":"fire","lifetime":70,"flammable":false},
+  {"name":"candle","category":"Fire/Heat","color":"yellow","type":"fire","lifetime":80,"flammable":true},
+
   {"name":"smoke","category":"Gas","color":"gray","type":"gas","gas":true},
+  {"name":"steam","category":"Gas","color":"lightgray","type":"gas","gas":true},
+  {"name":"gas","category":"Gas","color":"cyan","type":"gas","gas":true},
+  {"name":"poison gas","category":"Gas","color":"darkgreen","type":"gas","gas":true},
+  {"name":"fog","category":"Gas","color":"white","type":"gas","gas":true},
+
   {"name":"seed","category":"Plants","color":"green","type":"plant"},
   {"name":"grass","category":"Plants","color":"limegreen","type":"plant"},
   {"name":"tree","category":"Plants","color":"darkgreen","type":"plant"},
   {"name":"flower","category":"Plants","color":"pink","type":"plant"},
   {"name":"vine","category":"Plants","color":"green","type":"plant"},
+
   {"name":"ice","category":"Special","color":"lightcyan","type":"solid","liquid":false},
   {"name":"electricity","category":"Special","color":"yellow","type":"energy"},
   {"name":"magnet","category":"Special","color":"darkred","type":"energy"},
   {"name":"portal","category":"Special","color":"purple","type":"magic"},
-  {"name":"gravity","category":"Special","color":"cyan","type":"magic"}
+  {"name":"gravity","category":"Special","color":"cyan","type":"magic"},
+
+  {"name":"stone dust","category":"Other","color":"gray","type":"solid"},
+  {"name":"sandstorm","category":"Other","color":"sandybrown","type":"special"},
+  {"name":"waterfall","category":"Other","color":"blue","type":"liquid"}
 ]
