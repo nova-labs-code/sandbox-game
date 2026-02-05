@@ -1,19 +1,19 @@
 html, body {
-    margin: 0; padding: 0; height: 100%; overflow: hidden;
-    font-family: sans-serif;
-    display: flex; flex-direction: column;
+    margin:0; padding:0; height:100%; overflow:hidden;
+    font-family:sans-serif; display:flex; flex-direction:column;
 }
 
 #toolbar {
-    display: flex; flex-wrap: nowrap;
-    overflow-x: auto; background: rgba(255,255,255,0.9);
-    padding: 5px; border-bottom: 2px solid #ccc;
+    display:flex; flex-wrap:nowrap; overflow-x:auto;
+    background: rgba(255,255,255,0.9); padding:5px; border-bottom:2px solid #ccc;
 }
 
 #toolbar button {
-    margin-right: 5px; padding: 8px 12px; font-size: 14px;
-    border-radius: 6px; border: 1px solid #aaa; background: #eee;
-    cursor: pointer; flex: 0 0 auto;
+    margin-right:4px; padding:6px 10px; font-size:14px;
+    border-radius:6px; border:1px solid #aaa; background:#eee;
+    flex:0 0 auto; cursor:pointer;
 }
 
-canvas { flex: 1; display: block; touch-action: none; }
+canvas {
+    flex:1; display:block; touch-action:none;
+}
