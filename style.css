@@ -1,0 +1,15 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #87ceeb; /* sky blue */
+}
+
+canvas {
+    background-color: #87ceeb;
+    touch-action: none; /* prevents default scrolling on touch */
+}
