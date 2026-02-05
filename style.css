@@ -1,19 +1,47 @@
 html, body {
-    margin:0; padding:0; height:100%; overflow:hidden;
-    font-family:sans-serif; display:flex; flex-direction:column;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
 }
 
 #toolbar {
-    display:flex; flex-wrap:nowrap; overflow-x:auto;
-    background: rgba(255,255,255,0.9); padding:5px; border-bottom:2px solid #ccc;
+    display: flex;
+    flex-wrap: wrap;         /* allow multiple lines */
+    overflow-x: auto;        /* horizontal scroll for wide categories */
+    overflow-y: auto;        /* vertical scroll if many lines */
+    max-height: 120px;       /* adjust depending on screen */
+    background: rgba(255,255,255,0.95);
+    padding: 5px;
+    border-bottom: 2px solid #ccc;
+    box-sizing: border-box;
+}
+
+#toolbar h2 {
+    width: 100%;            /* full-width header for category labels */
+    margin: 2px 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
 }
 
 #toolbar button {
-    margin-right:4px; padding:6px 10px; font-size:14px;
-    border-radius:6px; border:1px solid #aaa; background:#eee;
-    flex:0 0 auto; cursor:pointer;
+    margin: 2px;
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #aaa;
+    background: #eee;
+    flex: 0 0 auto;
+    cursor: pointer;
+    white-space: nowrap;    /* prevent button text wrapping */
 }
 
 canvas {
-    flex:1; display:block; touch-action:none;
+    flex: 1;
+    display: block;
+    touch-action: none;
 }
