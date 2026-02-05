@@ -3,21 +3,24 @@ html, body {
     padding: 0;
     height: 100%;
     overflow: hidden;
-    background: #87ceeb;
     display: flex;
     flex-direction: column;
+    background: #87ceeb;
 }
 
 #toolbar {
     display: flex;
-    background: rgba(255,255,255,0.8);
+    flex-wrap: wrap;
+    background: rgba(255,255,255,0.85);
+    padding: 5px;
     z-index: 10;
 }
 
 #toolbar button {
-    flex: 1;
-    padding: 10px;
-    font-size: 16px;
+    margin: 2px;
+    padding: 6px 10px;
+    font-size: 14px;
+    flex: 1 1 auto;
 }
 
 canvas {
