@@ -18,8 +18,9 @@ header {
 }
 
 #sandbox-container {
-    flex: 1;
+    flex: 1 1 auto; /* allow it to shrink if toolbar exists */
     position: relative;
+    overflow: hidden;
 }
 
 canvas {
@@ -30,16 +31,18 @@ canvas {
     touch-action: none;
 }
 
-/* Bottom toolbar */
+/* Bottom toolbar fixed height */
 #toolbar {
+    flex: 0 0 140px; /* fixed height */
     display: flex;
     flex-wrap: wrap;
     overflow-x: auto;
-    max-height: 140px;
+    overflow-y: auto;
     background: rgba(255,255,255,0.95);
     padding: 5px;
     border-top: 2px solid #ccc;
     box-sizing: border-box;
+    z-index: 10;
 }
 
 #toolbar h2 {
