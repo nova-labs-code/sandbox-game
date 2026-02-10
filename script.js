@@ -90,26 +90,32 @@ function loop() {
 }
 
 function update() {
+    // Traverse from bottom up for correct falling behavior
     for (let r = rows - 1; r >= 0; r--) {
         for (let c = 0; c < cols; c++) {
             const p = world[r][c];
             if (!p) continue;
 
+            // Fire
             if (p.type === "fire") {
                 p.lifetime--;
                 if (p.lifetime <= 0) { world[r][c] = null; continue; }
                 spreadFire(r, c);
             }
 
+            // Explosives
             if (p.explosive) {
                 p.countdown--;
                 if (p.countdown <= 0) { explode(r, c); world[r][c] = null; continue; }
             }
 
+            // Physics by type
             if (p.solid) applySolidPhysics(r, c, p);
             if (p.liquid) applyLiquidPhysics(r, c, p);
-            if (p.gas) moveGas(r, c, p);
-            handleParticleReactions(r, c, p);
+            if (p.gas) applyGasPhysics(r, c, p);
+
+            // Reactions
+            handleReactions(r, c, p);
         }
     }
 }
@@ -127,13 +133,12 @@ function applySolidPhysics(r, c, p) {
         return;
     }
 
-    const dirs = [-1, 1];
+    const dirs = [-1,1];
     for (let d of dirs) {
         const nc = c + d;
-        if (nc >= 0 && nc < cols && !world[r][nc]) {
+        if (nc >=0 && nc < cols && !world[r][nc]) {
             world[r][nc] = p;
             world[r][c] = null;
-            p.vx = d * 0.5;
             p.vy = 0.5;
             return;
         }
@@ -154,10 +159,10 @@ function applyLiquidPhysics(r, c, p) {
         return;
     }
 
-    const dirs = [-1, 1].sort(() => Math.random() - 0.5);
+    const dirs = [-1,1].sort(()=>Math.random()-0.5);
     for (let d of dirs) {
-        const nc = c + d;
-        if (nc >= 0 && nc < cols && !world[r][nc]) {
+        const nc = c+d;
+        if (nc>=0 && nc<cols && !world[r][nc]) {
             world[r][nc] = p;
             world[r][c] = null;
             return;
@@ -168,11 +173,11 @@ function applyLiquidPhysics(r, c, p) {
 
 // -----------------------
 // Gas physics
-function moveGas(r, c, p) {
+function applyGasPhysics(r, c, p) {
     const dirs = [[0,-1],[-1,-1],[1,-1],[-1,0],[1,0]];
-    const [dx, dy] = dirs[Math.floor(Math.random() * dirs.length)];
-    const nr = r + dy, nc = c + dx;
-    if(nr >= 0 && nr < rows && nc >= 0 && nc < cols && !world[nr][nc]){
+    const [dx, dy] = dirs[Math.floor(Math.random()*dirs.length)];
+    const nr = r+dy, nc = c+dx;
+    if (nr>=0 && nr<rows && nc>=0 && nc<cols && !world[nr][nc]) {
         world[nr][nc] = p;
         world[r][c] = null;
     }
@@ -180,25 +185,20 @@ function moveGas(r, c, p) {
 
 // -----------------------
 // Reactions
-function handleParticleReactions(r, c, p) {
+function handleReactions(r,c,p){
     if (!p.reactions) return;
-
-    const neighbors = [
-        [r-1, c], [r+1, c], [r, c-1], [r, c+1]
-    ];
-
-    for (let [nr, nc] of neighbors) {
-        if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+    const neighbors = [[r-1,c],[r+1,c],[r,c-1],[r,c+1]];
+    for (let [nr,nc] of neighbors){
+        if (nr<0||nr>=rows||nc<0||nc>=cols) continue;
         const n = world[nr][nc];
         if (!n) continue;
-
-        for (let rxn of p.reactions) {
-            if (n.name === rxn.with) {
-                if (rxn.result === null) continue;
-                const resultEl = elements.find(e => e.name === rxn.result);
-                if (resultEl) {
-                    world[r][c] = {...resultEl};
-                    world[nr][nc] = {...resultEl};
+        for (let rxn of p.reactions){
+            if (n.name === rxn.with){
+                if (!rxn.result) continue;
+                const res = elements.find(e=>e.name===rxn.result);
+                if(res){
+                    world[r][c] = {...res};
+                    world[nr][nc] = {...res};
                 }
             }
         }
@@ -207,13 +207,13 @@ function handleParticleReactions(r, c, p) {
 
 // -----------------------
 // Fire
-function spreadFire(r, c) {
+function spreadFire(r,c){
     const dirs = [[0,1],[0,-1],[1,0],[-1,0]];
-    for (let [dx, dy] of dirs) {
-        const nr = r + dy, nc = c + dx;
-        if (nr>=0 && nr<rows && nc>=0 && nc<cols){
+    for(let [dx,dy] of dirs){
+        const nr = r+dy, nc=c+dx;
+        if(nr>=0&&nr<rows&&nc>=0&&nc<cols){
             const n = world[nr][nc];
-            if (n && n.flammable){
+            if(n && n.flammable){
                 world[nr][nc] = {...elements.find(e=>e.name==="fire"), lifetime:50};
             }
         }
@@ -222,23 +222,23 @@ function spreadFire(r, c) {
 
 // -----------------------
 // Explosion
-function explode(r, c) {
-    for (let y=-3; y<=3; y++)
-        for (let x=-3; x<=3; x++) {
-            const nr = r + y, nc = c + x;
-            if (nr>=0 && nr<rows && nc>=0 && nc<cols) world[nr][nc] = null;
+function explode(r,c){
+    for(let y=-3;y<=3;y++)
+        for(let x=-3;x<=3;x++){
+            const nr=r+y, nc=c+x;
+            if(nr>=0&&nr<rows&&nc>=0&&nc<cols) world[nr][nc]=null;
         }
 }
 
 // -----------------------
 // Draw
-function draw() {
-    ctx.clearRect(0, 0, width, height);
-    for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-            const p = world[r][c];
-            if (p) {
-                ctx.fillStyle = p.color;
+function draw(){
+    ctx.clearRect(0,0,width,height);
+    for(let r=0;r<rows;r++){
+        for(let c=0;c<cols;c++){
+            const p=world[r][c];
+            if(p){
+                ctx.fillStyle=p.color;
                 ctx.fillRect(c*particleSize, r*particleSize, particleSize, particleSize);
             }
         }
